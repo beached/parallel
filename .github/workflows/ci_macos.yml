@@ -1,0 +1,18 @@
+name: MacOS
+
+on:
+  push:
+    branches-ignore: dev
+  pull_request:
+    branches-ignore: dev
+
+jobs:
+  build:
+    runs-on: [macOS-latest]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build
+      run: ./ci_scripts/ci_macos_build.sh  
+    - name: Test
+      run: ./ci_scripts/ci_macos_test.sh
+
