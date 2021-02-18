@@ -18,6 +18,8 @@ set(CMAKE_CXX_STANDARD 17 CACHE STRING "The C++ standard whose features are requ
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+find_package(Threads REQUIRED)
+
 option(DAW_ENABLE_TESTING "Build unit tests" OFF)
 
 include(GNUInstallDirs)
@@ -32,7 +34,7 @@ add_subdirectory( extern )
 
 add_library(${PROJECT_NAME} INTERFACE)
 add_library(daw::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} INTERFACE daw::header_libraries )
+target_link_libraries(${PROJECT_NAME} INTERFACE daw::header_libraries ${CMAKE_THREAD_LIBS_INIT})
 
 # Protect dependents from this project's warnings if the guard isn't disabled
 set(DAW_Parallel_warning_guard SYSTEM)
