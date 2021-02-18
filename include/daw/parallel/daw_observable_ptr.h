@@ -3,14 +3,14 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/beached/header_libraries
+// Official repository: https://github.com/beached/parallel
 //
 
 #pragma once
 
-#include "../daw_exchange.h"
-#include "../daw_expected.h"
-#include "../daw_traits.h"
+#include <daw/daw_exchange.h>
+#include <daw/daw_expected.h>
+#include <daw/daw_traits.h>
 
 #include <atomic>
 #include <ciso646>
@@ -428,8 +428,8 @@ namespace daw {
 
 		template<typename Callable>
 		decltype( auto ) lock( Callable &&c ) {
-			using result_t = daw::remove_cvref_t<decltype(
-			  std::declval<Callable>( )( std::declval<T &>( ) ) )>;
+			using result_t = daw::remove_cvref_t<decltype( std::declval<Callable>( )(
+			  std::declval<T &>( ) ) )>;
 			auto lck_ptr = borrow( );
 			if( not lck_ptr ) {
 				return daw::expected_t<result_t>{ };

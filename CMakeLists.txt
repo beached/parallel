@@ -28,13 +28,11 @@ set(parallel_INSTALL_CMAKEDIR
 
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
+add_subdirectory( extern )
+
 add_library(${PROJECT_NAME} INTERFACE)
 add_library(daw::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-if (DAW_ENABLE_TESTING)
-    enable_testing()
-    add_subdirectory(tests)
-endif ()
+target_link_libraries(${PROJECT_NAME} INTERFACE daw::header_libraries )
 
 # Protect dependents from this project's warnings if the guard isn't disabled
 set(DAW_Parallel_warning_guard SYSTEM)
@@ -63,11 +61,11 @@ include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
         "${PROJECT_SOURCE_DIR}/cmake/daw_${PROJECT_NAME}Config.cmake.in"
-        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+        "${PROJECT_BINARY_DIR}/daw_${PROJECT_NAME}Config.cmake"
         INSTALL_DESTINATION
         ${parallel_INSTALL_CMAKEDIR})
 
-write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
+write_basic_package_version_file("daw_${PROJECT_NAME}ConfigVersion.cmake"
         VERSION ${PROJECT_VERSION}
         COMPATIBILITY SameMajorVersion)
 
@@ -76,8 +74,14 @@ install(EXPORT ${PROJECT_NAME}_Targets
         NAMESPACE daw::
         DESTINATION ${parallel_INSTALL_CMAKEDIR})
 
-install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake "
+install(FILES "${PROJECT_BINARY_DIR}/daw_${PROJECT_NAME}Config.cmake"
+        "${PROJECT_BINARY_DIR}/daw_${PROJECT_NAME}ConfigVersion.cmake"
         DESTINATION ${parallel_INSTALL_CMAKEDIR}$)
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/daw DESTINATION include)
+
+if (DAW_ENABLE_TESTING)
+    enable_testing()
+    add_subdirectory(tests)
+endif ()
+

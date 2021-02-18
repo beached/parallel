@@ -3,16 +3,15 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/beached/header_libraries
+// Official repository: https://github.com/beached/parallel
 //
+
+#include <daw/daw_benchmark.h>
+#include <daw/parallel/daw_latch.h>
 
 #include <chrono>
 #include <cstddef>
 #include <thread>
-#include <utility>
-
-#include "daw/daw_benchmark.h"
-#include "daw/parallel/daw_latch.h"
 
 void construction_001( ) {
 	auto sem1 = daw::unique_latch( );

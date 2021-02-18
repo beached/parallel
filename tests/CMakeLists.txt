@@ -6,10 +6,20 @@
 #Official repository : https: // github.com/beached/parallel
 #
 
-set(TEST_SOURCES daw_parallel_copy_mutex_test.cpp daw_parallel_counter_test.cpp daw_parallel_latch_test.cpp daw_parallel_scoped_multilock_test.cpp daw_parallel_semaphore_test.cpp)
+set(TEST_SOURCES 
+	daw_parallel_copy_mutex_test.cpp 
+	daw_parallel_counter_test.cpp 
+	daw_parallel_latch_test.cpp 
+	daw_parallel_scoped_multilock_test.cpp 
+	daw_parallel_semaphore_test.cpp)
 
 #not included in CI as they are not ready
-set(DEV_TEST_SOURCES daw_parallel_locked_value_test.cpp daw_parallel_observable_ptr_test.cpp daw_parallel_observable_ptr_pair_test.cpp daw_parallel_spin_lock_test.cpp)
+set(DEV_TEST_SOURCES 
+	daw_parallel_locked_value_test.cpp 
+	daw_parallel_observable_ptr_test.cpp 
+	daw_parallel_observable_ptr_pair_test.cpp 
+	daw_parallel_spin_lock_test.cpp
+)
 
 #Allows building all in some IDE's
 add_custom_target(full)
@@ -41,3 +51,4 @@ if (DAW_ENABLE_DEV_TESTING)
 		add_dependencies(full ${CUR_TEST_NAME})
 	endforeach ()
 endif ()
+

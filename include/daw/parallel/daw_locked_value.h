@@ -3,14 +3,15 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/beached/header_libraries
+// Official repository: https://github.com/beached/parallel
 //
 
 #pragma once
 
-#include "../cpp_17.h"
-#include "../daw_value_ptr.h"
 #include "daw_unique_mutex.h"
+
+#include <daw/cpp_17.h>
+#include <daw/daw_value_ptr.h>
 
 #include <ciso646>
 #include <mutex>

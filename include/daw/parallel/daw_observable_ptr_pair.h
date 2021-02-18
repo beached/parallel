@@ -3,14 +3,15 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/beached/header_libraries
+// Official repository: https://github.com/beached/parallel
 //
 
 #pragma once
 
-#include "../daw_move.h"
-#include "../daw_visit.h"
 #include "daw_observable_ptr.h"
+
+#include <daw/daw_move.h>
+#include <daw/daw_visit.h>
 
 #include <ciso646>
 #include <new>

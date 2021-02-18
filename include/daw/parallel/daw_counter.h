@@ -3,15 +3,16 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Official repository: https://github.com/beached/header_libraries
+// Official repository: https://github.com/beached/parallel
 //
 
 #pragma once
 
-#include "../cpp_17.h"
-#include "../daw_exception.h"
-#include "../daw_move.h"
 #include "daw_condition_variable.h"
+
+#include <daw/cpp_17.h>
+#include <daw/daw_exception.h>
+#include <daw/daw_move.h>
 
 #include <atomic>
 #include <cassert>

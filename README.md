@@ -1,4 +1,4 @@
-# Header Libraries ![](https://github.com/beached/parallel/workflows/MacOS/badge.svg) ![](https://github.com/beached/parallel/workflows/Ubuntu/badge.svg) ![](https://github.com/beached/parallel/workflows/Windows/badge.svg)
+# Parallel Header Helpers ![](https://github.com/beached/parallel/workflows/MacOS/badge.svg) ![](https://github.com/beached/parallel/workflows/Ubuntu/badge.svg) ![](https://github.com/beached/parallel/workflows/Windows/badge.svg)
 
 ## Description
 A set of header only parallel helpers. Most should have tests located in the [tests](tests/) folder
