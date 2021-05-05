@@ -6,7 +6,7 @@
 # Official repository: https://github.com/beached/parallel
 #
 
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.14)
 
 project("parallel"
         VERSION "1.0.0"
@@ -22,6 +22,8 @@ find_package(Threads REQUIRED)
 
 option(DAW_ENABLE_TESTING "Build unit tests" OFF)
 
+add_subdirectory( extern )
+
 include(GNUInstallDirs)
 set(parallel_INSTALL_CMAKEDIR
         "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake"
@@ -30,11 +32,10 @@ set(parallel_INSTALL_CMAKEDIR
 
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
-add_subdirectory( extern )
 
 add_library(${PROJECT_NAME} INTERFACE)
 add_library(daw::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} INTERFACE daw::header_libraries synchronization::synchronization ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${PROJECT_NAME} INTERFACE daw::header_libraries ${CMAKE_THREAD_LIBS_INIT})
 
 # Protect dependents from this project's warnings if the guard isn't disabled
 set(DAW_Parallel_warning_guard SYSTEM)
