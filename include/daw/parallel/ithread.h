@@ -78,7 +78,7 @@ namespace daw::parallel {
 		inline void wait( ) const {
 			auto current = m_keep_going.load( std::memory_order_acquire );
 			while( current ) {
-				std::atomic_wait_explicit( &m_keep_going, current,
+				daw::atomic_wait_explicit( &m_keep_going, current,
 				                           std::memory_order_relaxed );
 				current = m_keep_going.load( std::memory_order_acquire );
 			}
