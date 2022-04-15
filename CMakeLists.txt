@@ -6,16 +6,15 @@
 # Official repository: https://github.com/beached/parallel
 #
 
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.20)
 
 project("daw-parallel"
-        VERSION "1.1.2"
+        VERSION "1.1.3"
         DESCRIPTION "Various parallel headers"
         HOMEPAGE_URL "https://github.com/beached/parallel"
         LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "The C++ standard whose features are requested.")
-set(DAW_TARGET_PARALLEL ON CACHE STRING "Flag to indicate that library is included")
 
 find_package(Threads REQUIRED)
 
