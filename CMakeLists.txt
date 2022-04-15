@@ -9,7 +9,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project("daw-parallel"
-        VERSION "1.1.3"
+        VERSION "1.1.4"
         DESCRIPTION "Various parallel headers"
         HOMEPAGE_URL "https://github.com/beached/parallel"
         LANGUAGES C CXX)
@@ -34,7 +34,7 @@ set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 add_library(${PROJECT_NAME} INTERFACE)
 add_library(daw::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 add_library(daw::parallel ALIAS ${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} INTERFACE daw::daw-synchro daw::daw-header-libraries ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${PROJECT_NAME} INTERFACE daw::daw-header-libraries ${CMAKE_THREAD_LIBS_INIT})
 
 # Protect dependents from this project's warnings if the guard isn't disabled
 set(DAW_Parallel_warning_guard SYSTEM)
