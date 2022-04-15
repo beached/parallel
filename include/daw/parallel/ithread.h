@@ -52,8 +52,7 @@ namespace daw::parallel {
 		inline void stop( );
 	};
 
-	class stop_token_owner
-	  : public std::enable_shared_from_this<stop_token_owner> {
+	class stop_token_owner : public std::enable_shared_from_this<stop_token_owner> {
 		std::atomic<bool> m_keep_going{ true };
 
 	public:
@@ -65,8 +64,8 @@ namespace daw::parallel {
 
 		inline bool request_stop( ) {
 			bool expected = true;
-			bool result = m_keep_going.compare_exchange_strong(
-			  expected, false, std::memory_order_release );
+			bool result =
+			  m_keep_going.compare_exchange_strong( expected, false, std::memory_order_release );
 			std::atomic_notify_all( &m_keep_going );
 			return result;
 		}
@@ -78,8 +77,7 @@ namespace daw::parallel {
 		inline void wait( ) const {
 			auto current = m_keep_going.load( std::memory_order_acquire );
 			while( current ) {
-				daw::atomic_wait_explicit( &m_keep_going, current,
-				                           std::memory_order_relaxed );
+				daw::atomic_wait_explicit( &m_keep_going, current, std::memory_order_relaxed );
 				current = m_keep_going.load( std::memory_order_acquire );
 			}
 		}
@@ -110,17 +108,16 @@ namespace daw::parallel {
 	}
 
 	class ithread {
-		std::shared_ptr<stop_token_owner> m_continue =
-		  std::make_shared<stop_token_owner>( );
+		std::shared_ptr<stop_token_owner> m_continue = std::make_shared<stop_token_owner>( );
 		::std::thread m_thread;
 
 	public:
 		using id = ::std::thread::id;
 
-		template<typename Callable, typename... Args,
-		         std::enable_if_t<
-		           not std::is_same_v<daw::remove_cvref_t<Callable>, ithread>,
-		           std::nullptr_t> = nullptr>
+		template<typename Callable,
+		         typename... Args,
+		         std::enable_if_t<not std::is_same_v<daw::remove_cvref_t<Callable>, ithread>,
+		                          std::nullptr_t> = nullptr>
 		explicit ithread( Callable &&callable, Args &&...args )
 		  : m_thread(
 		      []( auto func, stop_token ic, auto... lambda_args ) {
@@ -131,7 +128,8 @@ namespace daw::parallel {
 				      (void)func( lambda_args... );
 			      }
 		      },
-		      DAW_FWD( callable ), m_continue->get_interrupt_token( ),
+		      DAW_FWD( callable ),
+		      m_continue->get_interrupt_token( ),
 		      DAW_FWD( args )... ) {}
 
 		ithread( ithread && ) = delete;
