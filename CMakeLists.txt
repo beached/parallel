@@ -15,13 +15,13 @@ project("daw-parallel"
         LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "The C++ standard whose features are requested.")
-set(DAW_TARGET_PARALLEL ON CACHE STRING "Flag to indicate that library is included" )
+set(DAW_TARGET_PARALLEL ON CACHE STRING "Flag to indicate that library is included")
 
 find_package(Threads REQUIRED)
 
 option(DAW_ENABLE_TESTING "Build unit tests" OFF)
 
-add_subdirectory( extern )
+add_subdirectory(extern)
 
 include(GNUInstallDirs)
 set(parallel_INSTALL_CMAKEDIR
@@ -34,7 +34,8 @@ set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 add_library(${PROJECT_NAME} INTERFACE)
 add_library(daw::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} INTERFACE daw::synchro daw::header_libraries ${CMAKE_THREAD_LIBS_INIT})
+add_library(daw::parallel ALIAS ${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} INTERFACE daw::daw-synchro daw::daw-header-libraries ${CMAKE_THREAD_LIBS_INIT})
 
 # Protect dependents from this project's warnings if the guard isn't disabled
 set(DAW_Parallel_warning_guard SYSTEM)
@@ -62,12 +63,12 @@ install(TARGETS ${PROJECT_NAME}
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
-        "${PROJECT_SOURCE_DIR}/cmake/daw_${PROJECT_NAME}Config.cmake.in"
-        "${PROJECT_BINARY_DIR}/daw_${PROJECT_NAME}Config.cmake"
+        "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
+        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
         INSTALL_DESTINATION
         ${parallel_INSTALL_CMAKEDIR})
 
-write_basic_package_version_file("daw_${PROJECT_NAME}ConfigVersion.cmake"
+write_basic_package_version_file("${PROJECT_NAME}ConfigVersion.cmake"
         VERSION ${PROJECT_VERSION}
         COMPATIBILITY SameMajorVersion)
 
@@ -76,8 +77,8 @@ install(EXPORT ${PROJECT_NAME}_Targets
         NAMESPACE daw::
         DESTINATION ${parallel_INSTALL_CMAKEDIR})
 
-install(FILES "${PROJECT_BINARY_DIR}/daw_${PROJECT_NAME}Config.cmake"
-        "${PROJECT_BINARY_DIR}/daw_${PROJECT_NAME}ConfigVersion.cmake"
+install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
         DESTINATION ${parallel_INSTALL_CMAKEDIR}$)
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/daw DESTINATION include)
