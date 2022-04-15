@@ -22,13 +22,12 @@
 
 #pragma once
 
-#include "daw_latch.h"
-
+#include <daw/daw_concepts.h>
 #include <daw/daw_move.h>
+#include <daw/daw_scope_guard.h>
 #include <daw/daw_utility.h>
 
 #include <atomic>
-#include <cpp20/atomic_wait>
 #include <memory>
 #include <thread>
 #include <type_traits>
@@ -43,7 +42,7 @@ namespace daw::parallel {
 		friend class ::daw::parallel::stop_token_owner;
 
 		inline explicit stop_token( std::weak_ptr<stop_token_owner> owner ) noexcept
-		  : m_owner( daw::move( owner ) ) {}
+		  : m_owner( DAW_MOVE( owner ) ) {}
 
 	public:
 		[[nodiscard]] inline bool can_continue( ) const;
@@ -53,7 +52,7 @@ namespace daw::parallel {
 	};
 
 	class stop_token_owner : public std::enable_shared_from_this<stop_token_owner> {
-		std::atomic<bool> m_keep_going{ true };
+		std::atomic<bool> m_keep_going = std::atomic<bool>( true );
 
 	public:
 		stop_token_owner( ) = default;
@@ -77,7 +76,7 @@ namespace daw::parallel {
 		inline void wait( ) const {
 			auto current = m_keep_going.load( std::memory_order_acquire );
 			while( current ) {
-				daw::atomic_wait_explicit( &m_keep_going, current, std::memory_order_relaxed );
+				std::atomic_wait_explicit( &m_keep_going, current, std::memory_order_relaxed );
 				current = m_keep_going.load( std::memory_order_acquire );
 			}
 		}
@@ -114,10 +113,7 @@ namespace daw::parallel {
 	public:
 		using id = ::std::thread::id;
 
-		template<typename Callable,
-		         typename... Args,
-		         std::enable_if_t<not std::is_same_v<daw::remove_cvref_t<Callable>, ithread>,
-		                          std::nullptr_t> = nullptr>
+		template<not_me<ithread> Callable, typename... Args>
 		explicit ithread( Callable &&callable, Args &&...args )
 		  : m_thread(
 		      []( auto func, stop_token ic, auto... lambda_args ) {
