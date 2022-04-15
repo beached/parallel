@@ -9,14 +9,13 @@
 cmake_minimum_required(VERSION 3.14)
 
 project("parallel"
-        VERSION "1.0.0"
+        VERSION "1.0.1"
         DESCRIPTION "Various parallel headers"
         HOMEPAGE_URL "https://github.com/beached/parallel"
         LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "The C++ standard whose features are requested.")
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(DAW_TARGET_PARALLEL ON CACHE STRING "Flag to indicate that library is included" )
 
 find_package(Threads REQUIRED)
 

@@ -22,8 +22,7 @@ namespace daw {
 		std::shared_ptr<member_t> m_mutex = std::make_shared<member_t>( );
 
 	public:
-		basic_shared_mutex( ) noexcept(
-		  std::is_nothrow_default_constructible_v<Mutex> ) {}
+		basic_shared_mutex( ) noexcept( std::is_nothrow_default_constructible_v<Mutex> ) {}
 
 		void lock( ) {
 			m_mutex->data.lock( );

@@ -77,8 +77,7 @@ namespace daw {
 			std::unique_lock<Mutex> m_lock;
 			std::reference_wrapper<std::add_const_t<T>> m_value;
 
-			const_locked_value_t( std::unique_lock<Mutex> &&lck,
-			                      std::add_const_t<T> &value )
+			const_locked_value_t( std::unique_lock<Mutex> &&lck, std::add_const_t<T> &value )
 			  : m_lock( std::move( lck ) )
 			  , m_value( value ) {}
 
@@ -92,12 +91,10 @@ namespace daw {
 			using const_pointer = std::add_const_t<T> *;
 
 			const_locked_value_t( const_locked_value_t const &other ) = delete;
-			const_locked_value_t &
-			operator=( const_locked_value_t const &other ) = delete;
+			const_locked_value_t &operator=( const_locked_value_t const &other ) = delete;
 
 			const_locked_value_t( const_locked_value_t &&other ) noexcept = default;
-			const_locked_value_t &
-			operator=( const_locked_value_t && ) noexcept = default;
+			const_locked_value_t &operator=( const_locked_value_t && ) noexcept = default;
 
 			void release( ) noexcept {
 				m_lock.unlock( );
@@ -116,29 +113,25 @@ namespace daw {
 			}
 		}; // locked_value_t
 
-		mutable daw::basic_unique_mutex<Mutex> m_mutex =
-		  daw::basic_unique_mutex<Mutex>( );
+		mutable daw::basic_unique_mutex<Mutex> m_mutex = daw::basic_unique_mutex<Mutex>( );
 		daw::value_ptr<T> m_value = daw::value_ptr<T>( );
 
 	public:
 		lockable_value_t( ) = default;
 
 		template<typename U,
-		         std::enable_if_t<
-		           not std::is_same_v<lockable_value_t, daw::remove_cvref_t<U>>,
-		           std::nullptr_t> = nullptr>
+		         std::enable_if_t<not std::is_same_v<lockable_value_t, daw::remove_cvref_t<U>>,
+		                          std::nullptr_t> = nullptr>
 		explicit lockable_value_t( U &&value ) noexcept(
 		  noexcept( daw::value_ptr<T>( std::forward<U>( value ) ) ) )
 		  : m_value( std::forward<U>( value ) ) {}
 
 		locked_value_t get( ) {
-			return locked_value_t( std::unique_lock<Mutex>( m_mutex.get( ) ),
-			                       *m_value );
+			return locked_value_t( std::unique_lock<Mutex>( m_mutex.get( ) ), *m_value );
 		}
 
 		const_locked_value_t get( ) const {
-			return const_locked_value_t( std::unique_lock<Mutex>( m_mutex.get( ) ),
-			                             *m_value );
+			return const_locked_value_t( std::unique_lock<Mutex>( m_mutex.get( ) ), *m_value );
 		}
 
 		std::optional<locked_value_t> try_get( ) {

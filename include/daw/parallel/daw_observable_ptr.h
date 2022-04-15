@@ -187,8 +187,7 @@ namespace daw {
 					return;
 				}
 				bool do_destruct = false;
-				std::call_once( cb->m_cb_destruct,
-				                [&do_destruct]( ) { do_destruct = true; } );
+				std::call_once( cb->m_cb_destruct, [&do_destruct]( ) { do_destruct = true; } );
 				if( do_destruct ) {
 					delete cb;
 				}
@@ -196,16 +195,14 @@ namespace daw {
 
 		public:
 			static void remove_observer( control_block_t *cb ) {
-				if( cb and cb->remove_observer(
-				             std::lock_guard<std::mutex>( cb->m_is_borrowed ) ) ) {
+				if( cb and cb->remove_observer( std::lock_guard<std::mutex>( cb->m_is_borrowed ) ) ) {
 
 					destruct_cb( cb );
 				}
 			}
 
 			static void remove_owner( control_block_t *cb ) {
-				if( cb and cb->remove_owner(
-				             std::lock_guard<std::mutex>( cb->m_is_borrowed ) ) ) {
+				if( cb and cb->remove_owner( std::lock_guard<std::mutex>( cb->m_is_borrowed ) ) ) {
 
 					destruct_cb( cb );
 				}
@@ -289,8 +286,7 @@ namespace daw {
 		}
 
 		template<typename Callable,
-		         std::enable_if_t<traits::is_callable_v<Callable, T const &>,
-		                          std::nullptr_t> = nullptr>
+		         std::enable_if_t<traits::is_callable_v<Callable, T const &>, std::nullptr_t> = nullptr>
 		decltype( auto ) lock( Callable &&c ) const
 		  noexcept( noexcept( c( std::declval<T const &>( ) ) ) ) {
 
@@ -300,15 +296,12 @@ namespace daw {
 			if( not lck_ptr ) {
 				return daw::expected_t<result_t>{ };
 			}
-			return daw::expected_t<result_t>::from_code( std::forward<Callable>( c ),
-			                                             *lck_ptr );
+			return daw::expected_t<result_t>::from_code( std::forward<Callable>( c ), *lck_ptr );
 		}
 
 		template<typename Callable,
-		         std::enable_if_t<std::is_invocable_v<Callable, T &>,
-		                          std::nullptr_t> = nullptr>
-		auto
-		lock( Callable &&c ) noexcept( noexcept( c( std::declval<T &>( ) ) ) ) {
+		         std::enable_if_t<std::is_invocable_v<Callable, T &>, std::nullptr_t> = nullptr>
+		auto lock( Callable &&c ) noexcept( noexcept( c( std::declval<T &>( ) ) ) ) {
 
 			auto lck_ptr = borrow( );
 			using result_t = daw::remove_cvref_t<decltype( c( *lck_ptr ) )>;
@@ -316,8 +309,7 @@ namespace daw {
 			if( not lck_ptr ) {
 				return daw::expected_t<result_t>( );
 			}
-			return daw::expected_t<result_t>::from_code( std::forward<Callable>( c ),
-			                                             *lck_ptr );
+			return daw::expected_t<result_t>::from_code( std::forward<Callable>( c ), *lck_ptr );
 		}
 
 		decltype( auto ) operator->( ) const noexcept {
@@ -415,28 +407,25 @@ namespace daw {
 
 		template<typename Callable>
 		decltype( auto ) lock( Callable &&c ) const {
-			using result_t =
-			  daw::remove_cvref_t<decltype( c( std::declval<T const &>( ) ) )>;
+			using result_t = daw::remove_cvref_t<decltype( c( std::declval<T const &>( ) ) )>;
 			auto lck_ptr = borrow( );
 			if( not lck_ptr ) {
 				return daw::expected_t<result_t>{ };
 			}
 			T const &r = *lck_ptr;
-			return daw::expected_t<result_t>::from_code( std::forward<Callable>( c ),
-			                                             r );
+			return daw::expected_t<result_t>::from_code( std::forward<Callable>( c ), r );
 		}
 
 		template<typename Callable>
 		decltype( auto ) lock( Callable &&c ) {
-			using result_t = daw::remove_cvref_t<decltype( std::declval<Callable>( )(
-			  std::declval<T &>( ) ) )>;
+			using result_t =
+			  daw::remove_cvref_t<decltype( std::declval<Callable>( )( std::declval<T &>( ) ) )>;
 			auto lck_ptr = borrow( );
 			if( not lck_ptr ) {
 				return daw::expected_t<result_t>{ };
 			}
 			T &r = *lck_ptr;
-			return daw::expected_t<result_t>::from_code( std::forward<Callable>( c ),
-			                                             r );
+			return daw::expected_t<result_t>::from_code( std::forward<Callable>( c ), r );
 		}
 
 		T const &operator*( ) const {
@@ -459,8 +448,7 @@ namespace daw {
 	};
 
 	template<typename T, typename... Args>
-	[[nodiscard]] observable_ptr<T>
-	make_observable_ptr( Args &&...args ) noexcept(
+	[[nodiscard]] observable_ptr<T> make_observable_ptr( Args &&...args ) noexcept(
 	  noexcept( new T( std::forward<Args>( args )... ) ) ) {
 		T *tmp = new T( std::forward<Args>( args )... );
 		if( not tmp ) {
