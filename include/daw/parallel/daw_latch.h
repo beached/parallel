@@ -13,6 +13,7 @@
 #include <daw/cpp_17.h>
 #include <daw/daw_exception.h>
 #include <daw/daw_move.h>
+#include <daw/daw_cpp_feature_check.h>
 
 #include <atomic>
 #include <cassert>
@@ -22,22 +23,13 @@
 
 namespace daw {
 	template<typename>
-	struct is_latch : std::false_type {};
-
-	template<typename T>
-	inline constexpr bool is_latch_v = is_latch<daw::remove_cvref_t<T>>::value;
+	inline constexpr bool is_latch_v = false;
 
 	template<typename>
-	struct is_unique_latch : std::false_type {};
-
-	template<typename T>
-	inline constexpr bool is_unique_latch_v = is_unique_latch<daw::remove_cvref_t<T>>::value;
+	inline constexpr bool is_unique_latch_v = false;
 
 	template<typename>
-	struct is_shared_latch : std::false_type {};
-
-	template<typename T>
-	inline constexpr bool is_shared_latch_v = is_shared_latch<daw::remove_cvref_t<T>>::value;
+	inline constexpr bool is_shared_latch_v = false;
 
 	template<typename Mutex, typename ConditionVariable>
 	class basic_latch {
@@ -125,7 +117,7 @@ namespace daw {
 	}; // basic_latch
 
 	template<typename Mutex, typename ConditionVariable>
-	struct is_latch<basic_latch<Mutex, ConditionVariable>> : std::true_type {};
+	inline constexpr bool is_latch_v<basic_latch<Mutex, ConditionVariable>> = true;
 
 	using latch = basic_latch<std::mutex, std::condition_variable>;
 
@@ -202,7 +194,7 @@ namespace daw {
 	}; // basic_unique_latch
 
 	template<typename Mutex, typename ConditionVariable>
-	struct is_unique_latch<basic_unique_latch<Mutex, ConditionVariable>> : std::true_type {};
+	inline constexpr bool is_unique_latch_v<basic_unique_latch<Mutex, ConditionVariable>> = true;
 
 	using unique_latch = basic_unique_latch<std::mutex, std::condition_variable>;
 
@@ -278,7 +270,7 @@ namespace daw {
 	}; // basic_shared_latch
 
 	template<typename Mutex, typename ConditionVariable>
-	struct is_shared_latch<basic_shared_latch<Mutex, ConditionVariable>> : std::true_type {};
+	inline constexpr bool is_shared_latch_v<basic_shared_latch<Mutex, ConditionVariable>> = true;
 
 	using shared_latch = basic_shared_latch<std::mutex, std::condition_variable>;
 
@@ -288,4 +280,27 @@ namespace daw {
 			sem->wait( );
 		}
 	}
+
+	template<typename T>
+	struct is_latch : std::bool_constant<is_latch_v<T>> {};
+
+	template<typename T>
+	struct is_unique_latch : std::bool_constant<is_unique_latch_v<T>> {};
+
+	template<typename T>
+	struct is_shared_latch : std::bool_constant<is_shared_latch_v<T>> {};
+
+#if defined( __cpp_concepts )
+#if __cpp_concepts >= 201907L
+	template<typename T>
+	concept Latch = is_latch_v<T>;
+
+	template<typename T>
+	concept UniqueLatch = is_unique_latch_v<T>;
+
+	template<typename T>
+	concept SharedLatch = is_shared_latch_v<T>;
+#endif
+#endif
+
 } // namespace daw
