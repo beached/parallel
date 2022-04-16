@@ -106,7 +106,7 @@ namespace daw {
 		basic_shared_condition_variable( ) = default;
 
 		basic_shared_condition_variable(
-		  basic_unique_condition_variable<Mutex, ConditionVariable> &&other )
+		  basic_unique_condition_variable<Mutex, ConditionVariable> &&other ) noexcept
 		  : m_members( other.release( ) ) {}
 
 		void notify_all( ) {
