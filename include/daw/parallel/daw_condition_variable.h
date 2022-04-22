@@ -39,15 +39,15 @@ namespace daw {
 		}
 
 		template<typename Rep, typename Period, typename Predicate>
-		[[nodiscard]] decltype( auto ) wait_for( std::chrono::duration<Rep, Period> const &rel_time,
-		                                         Predicate &&pred ) {
+		[[nodiscard]] auto wait_for( std::chrono::duration<Rep, Period> const &rel_time,
+		                             Predicate &&pred ) {
 			auto lock = std::unique_lock<Mutex>( *m_mutex );
 			return m_condition.wait_for( lock, rel_time, pred );
 		}
 
 		template<typename Clock, typename Duration, typename Predicate>
-		[[nodiscard]] decltype( auto )
-		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time, Predicate &&pred ) {
+		[[nodiscard]] auto wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time,
+		                               Predicate &&pred ) {
 			auto lock = std::unique_lock<Mutex>( *m_mutex );
 			return m_condition.wait_until( lock, timeout_time, pred );
 		}
