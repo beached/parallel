@@ -11,9 +11,9 @@
 #include "daw_condition_variable.h"
 
 #include <daw/cpp_17.h>
+#include <daw/daw_cpp_feature_check.h>
 #include <daw/daw_exception.h>
 #include <daw/daw_move.h>
-#include <daw/daw_cpp_feature_check.h>
 
 #include <atomic>
 #include <cassert>
@@ -105,13 +105,12 @@ namespace daw {
 		}
 
 		template<typename Rep, typename Period>
-		[[nodiscard]] decltype( auto ) wait_for( std::chrono::duration<Rep, Period> const &rel_time ) {
+		[[nodiscard]] auto wait_for( std::chrono::duration<Rep, Period> const &rel_time ) {
 			return m_condition.wait_for( rel_time, stop_waiting( ) );
 		}
 
 		template<typename Clock, typename Duration>
-		[[nodiscard]] decltype( auto )
-		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) const {
+		[[nodiscard]] auto wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) {
 			return m_condition.wait_until( timeout_time, stop_waiting( ) );
 		}
 	}; // basic_latch
@@ -183,7 +182,7 @@ namespace daw {
 
 		template<typename Clock, typename Duration>
 		[[nodiscard]] decltype( auto )
-		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) const {
+		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) {
 			assert( latch );
 			return latch->wait_until( timeout_time );
 		}
@@ -259,7 +258,7 @@ namespace daw {
 
 		template<typename Clock, typename Duration>
 		[[nodiscard]] decltype( auto )
-		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) const {
+		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) {
 			assert( latch );
 			return latch->wait_until( timeout_time );
 		}
