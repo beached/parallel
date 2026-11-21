@@ -22,10 +22,9 @@
 
 #pragma once
 
-#include "daw_latch.h"
+#include "daw/parallel/daw_latch.h"
 
 #include <daw/daw_concepts.h>
-#include <daw/daw_move.h>
 #include <daw/daw_not_null.h>
 #include <daw/daw_scope_guard.h>
 #include <daw/daw_utility.h>
@@ -64,12 +63,14 @@ namespace daw::parallel {
 		}
 
 		template<typename Rep, typename Period>
-		[[nodiscard]] auto wait_for( std::chrono::duration<Rep, Period> const &rel_time ) {
+		[[nodiscard]] auto
+		wait_for( std::chrono::duration<Rep, Period> const &rel_time ) {
 			return m_condition->wait_for( rel_time );
 		}
 
 		template<typename Clock, typename Duration>
-		[[nodiscard]] auto wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) {
+		[[nodiscard]] auto
+		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) {
 			m_condition->wait_until( timeout_time );
 		}
 	};
@@ -90,14 +91,17 @@ namespace daw::parallel {
 	};
 
 	namespace impl {
-		/// Create a thread that can optionally take an interrupt token and signals when complete
+		/// Create a thread that can optionally take an interrupt token and signals
+		/// when complete
 		template<typename Function, typename... Args>
-		std::thread
-		make_thread( latch &sem, interrupt_token_owner &token, Function &&function, Args &&...args ) {
+		std::thread make_thread( latch &sem, interrupt_token_owner &token,
+		                         Function &&function, Args &&...args ) {
 			if constexpr( std::is_invocable_v<Function, interrupt_token, Args...> ) {
 				return std::thread(
 				  [&sem, &token]( interrupt_token it, auto func, auto... arguments ) {
-					  auto const on_exit = daw::on_scope_exit( [&sem]( ) { sem.notify( ); } );
+					  auto const on_exit = daw::on_scope_exit( [&sem]( ) {
+						  sem.notify( );
+					  } );
 					  return DAW_MOVE( func )( it, DAW_MOVE( arguments )... );
 				  },
 				  DAW_FWD( function ),
@@ -108,7 +112,9 @@ namespace daw::parallel {
 				               "Function is not invocalle with supplied parameters." );
 				return std::thread(
 				  [&sem]( auto func, auto... arguments ) {
-					  auto const on_exit = daw::on_scope_exit( [&sem]( ) { sem.notify( ); } );
+					  auto const on_exit = daw::on_scope_exit( [&sem]( ) {
+						  sem.notify( );
+					  } );
 					  return DAW_MOVE( func )( DAW_MOVE( arguments )... );
 				  },
 				  DAW_FWD( function ),
@@ -117,7 +123,9 @@ namespace daw::parallel {
 		}
 
 		template<typename T, typename Other>
-		using NotDecayOf = std::enable_if_t<not std::is_same_v<T, std::decay_t<Other>>, std::nullptr_t>;
+		using NotDecayOf =
+		  std::enable_if_t<not std::is_same_v<T, std::decay_t<Other>>,
+			                 std::nullptr_t>;
 	} // namespace impl
 
 	class fixed_ithread {
@@ -126,9 +134,11 @@ namespace daw::parallel {
 		daw::latch m_sem = daw::latch( 1 );
 
 	public:
-		template<typename Func, typename... Args, impl::NotDecayOf<fixed_ithread, Func> = nullptr>
+		template<typename Func, typename... Args,
+		         impl::NotDecayOf<fixed_ithread, Func> = nullptr>
 		explicit fixed_ithread( Func &&func, Args &&...args )
-		  : m_thread( impl::make_thread( m_sem, m_continue, DAW_FWD( func ), DAW_FWD( args )... ) ) {}
+		  : m_thread( impl::make_thread( m_sem, m_continue, DAW_FWD( func ),
+			                               DAW_FWD( args )... ) ) {}
 
 		fixed_ithread( fixed_ithread && ) = delete;
 		fixed_ithread( fixed_ithread const & ) = delete;
@@ -168,12 +178,14 @@ namespace daw::parallel {
 		}
 
 		template<typename Rep, typename Period>
-		[[nodiscard]] auto wait_for( std::chrono::duration<Rep, Period> const &rel_time ) {
+		[[nodiscard]] auto
+		wait_for( std::chrono::duration<Rep, Period> const &rel_time ) {
 			return m_sem.wait_for( rel_time );
 		}
 
 		template<typename Clock, typename Duration>
-		[[nodiscard]] auto wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) {
+		[[nodiscard]] auto
+		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) {
 			m_sem.wait_until( timeout_time );
 		}
 
@@ -191,14 +203,15 @@ namespace daw::parallel {
 		}
 
 		template<typename Rep, typename Period>
-		[[nodiscard]] auto stop_and_wait_for( std::chrono::duration<Rep, Period> const &rel_time ) {
+		[[nodiscard]] auto
+		stop_and_wait_for( std::chrono::duration<Rep, Period> const &rel_time ) {
 			stop( );
 			return wait_for( rel_time );
 		}
 
 		template<typename Clock, typename Duration>
-		[[nodiscard]] auto
-		stop_and_wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) {
+		[[nodiscard]] auto stop_and_wait_until(
+		  std::chrono::time_point<Clock, Duration> const &timeout_time ) {
 			stop( );
 			wait_until( timeout_time );
 		}
@@ -213,9 +226,11 @@ namespace daw::parallel {
 	public:
 		ithread( ) = default;
 
-		template<typename Function, typename... Args, impl::NotDecayOf<ithread, Function> = nullptr>
+		template<typename Function, typename... Args,
+		         impl::NotDecayOf<ithread, Function> = nullptr>
 		explicit ithread( Function &&func, Args &&...args )
-		  : m_thread( std::make_unique<fixed_ithread>( DAW_FWD( func ), DAW_FWD( args )... ) ) {}
+		  : m_thread( std::make_unique<fixed_ithread>( DAW_FWD( func ),
+			                                             DAW_FWD( args )... ) ) {}
 
 		[[nodiscard]] inline bool joinable( ) const noexcept {
 			assert( m_thread );
@@ -248,13 +263,15 @@ namespace daw::parallel {
 		}
 
 		template<typename Rep, typename Period>
-		[[nodiscard]] auto wait_for( std::chrono::duration<Rep, Period> const &rel_time ) {
+		[[nodiscard]] auto
+		wait_for( std::chrono::duration<Rep, Period> const &rel_time ) {
 			assert( m_thread );
 			return m_thread->wait_for( rel_time );
 		}
 
 		template<typename Clock, typename Duration>
-		[[nodiscard]] auto wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) {
+		[[nodiscard]] auto
+		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) {
 			assert( m_thread );
 			m_thread->wait_until( timeout_time );
 		}
@@ -265,14 +282,15 @@ namespace daw::parallel {
 		}
 
 		template<typename Rep, typename Period>
-		[[nodiscard]] auto stop_and_wait_for( std::chrono::duration<Rep, Period> const &rel_time ) {
+		[[nodiscard]] auto
+		stop_and_wait_for( std::chrono::duration<Rep, Period> const &rel_time ) {
 			assert( m_thread );
 			return m_thread->stop_and_wait_for( rel_time );
 		}
 
 		template<typename Clock, typename Duration>
-		[[nodiscard]] auto
-		stop_and_wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) {
+		[[nodiscard]] auto stop_and_wait_until(
+		  std::chrono::time_point<Clock, Duration> const &timeout_time ) {
 			assert( m_thread );
 			m_thread->stop_and_wait_until( timeout_time );
 		}

@@ -8,15 +8,14 @@
 
 #pragma once
 
-#include "daw_condition_variable.h"
+#include "daw/parallel/daw_condition_variable.h"
 
+#include <daw/ciso646.h>
 #include <daw/cpp_17.h>
 #include <daw/daw_exception.h>
-#include <daw/daw_move.h>
 
 #include <atomic>
 #include <cassert>
-#include <ciso646>
 #include <cstdint>
 #include <memory>
 
@@ -25,50 +24,55 @@ namespace daw {
 	struct is_counter : std::false_type {};
 
 	template<typename T>
-	inline constexpr bool is_counter_v = is_counter<daw::remove_cvref_t<T>>::value;
+	inline constexpr bool is_counter_v =
+	  is_counter<daw::remove_cvref_t<T>>::value;
 
 	template<typename>
 	struct is_unique_counter : std::false_type {};
 
 	template<typename T>
-	inline constexpr bool is_unique_counter_v = is_unique_counter<daw::remove_cvref_t<T>>::value;
+	inline constexpr bool is_unique_counter_v =
+	  is_unique_counter<daw::remove_cvref_t<T>>::value;
 
 	template<typename>
 	struct is_shared_counter : std::false_type {};
 
 	template<typename T>
-	inline constexpr bool is_shared_counter_v = is_shared_counter<daw::remove_cvref_t<T>>::value;
+	inline constexpr bool is_shared_counter_v =
+	  is_shared_counter<daw::remove_cvref_t<T>>::value;
 
 	template<typename Mutex, typename ConditionVariable>
 	class basic_counter {
-		mutable daw::basic_condition_variable<Mutex, ConditionVariable> m_condition =
-		  daw::basic_condition_variable<Mutex, ConditionVariable>( );
+		mutable daw::basic_condition_variable<Mutex, ConditionVariable>
+		  m_condition = daw::basic_condition_variable<Mutex, ConditionVariable>( );
 		std::atomic_intmax_t m_count = 0;
 
 		[[nodiscard]] auto stop_waiting( ) const {
-			return [&]( ) -> bool { return static_cast<intmax_t>( m_count ) <= 0; };
+			return [&]( ) -> bool {
+				return static_cast<intmax_t>( m_count ) <= 0;
+			};
 		}
 
 	public:
 		basic_counter( ) = default;
 
-		template<
-		  typename Integer,
-		  std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>, std::nullptr_t> = nullptr>
+		template<typename Integer,
+		         std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>,
+		                          std::nullptr_t> = nullptr>
 		explicit basic_counter( Integer count ) noexcept(
-		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t>
-		    and std::is_nothrow_default_constructible_v<ConditionVariable> )
+		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t> and
+		  std::is_nothrow_default_constructible_v<ConditionVariable> )
 		  : m_count( static_cast<intmax_t>( count ) ) {
 
 			assert( count >= 0 );
 		}
 
-		template<
-		  typename Integer,
-		  std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>, std::nullptr_t> = nullptr>
+		template<typename Integer,
+		         std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>,
+		                          std::nullptr_t> = nullptr>
 		basic_counter( Integer count, bool countered ) noexcept(
-		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t>
-		    and std::is_nothrow_default_constructible_v<ConditionVariable> )
+		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t> and
+		  std::is_nothrow_default_constructible_v<ConditionVariable> )
 		  : m_count( static_cast<intmax_t>( count ) ) {
 
 			assert( count >= 0 );
@@ -86,9 +90,9 @@ namespace daw {
 			m_count = 0;
 		}
 
-		template<
-		  typename Integer,
-		  std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>, std::nullptr_t> = nullptr>
+		template<typename Integer,
+		         std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>,
+		                          std::nullptr_t> = nullptr>
 		void reset( Integer count ) {
 			assert( count >= 0 );
 
@@ -120,19 +124,21 @@ namespace daw {
 		}
 
 		template<typename Rep, typename Period>
-		[[nodiscard]] decltype( auto ) wait_for( std::chrono::duration<Rep, Period> const &rel_time ) {
+		[[nodiscard]] decltype( auto )
+		wait_for( std::chrono::duration<Rep, Period> const &rel_time ) {
 			return m_condition.wait_for( rel_time, stop_waiting( ) );
 		}
 
 		template<typename Clock, typename Duration>
-		[[nodiscard]] decltype( auto )
-		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) const {
+		[[nodiscard]] decltype( auto ) wait_until(
+		  std::chrono::time_point<Clock, Duration> const &timeout_time ) const {
 			return m_condition.wait_until( timeout_time, stop_waiting( ) );
 		}
 	}; // basic_counter
 
 	template<typename Mutex, typename ConditionVariable>
-	struct is_counter<basic_counter<Mutex, ConditionVariable>> : std::true_type {};
+	struct is_counter<basic_counter<Mutex, ConditionVariable>> : std::true_type {
+	};
 
 	using counter = basic_counter<std::mutex, std::condition_variable>;
 
@@ -144,23 +150,23 @@ namespace daw {
 	public:
 		basic_unique_counter( ) = default;
 
-		template<
-		  typename Integer,
-		  std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>, std::nullptr_t> = nullptr>
+		template<typename Integer,
+		         std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>,
+		                          std::nullptr_t> = nullptr>
 		explicit basic_unique_counter( Integer count ) noexcept(
-		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t>
-		    and std::is_nothrow_default_constructible_v<ConditionVariable> )
+		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t> and
+		  std::is_nothrow_default_constructible_v<ConditionVariable> )
 		  : counter( std::make_unique<counter_t>( count ) ) {
 
 			assert( count >= 0 );
 		}
 
-		template<
-		  typename Integer,
-		  std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>, std::nullptr_t> = nullptr>
+		template<typename Integer,
+		         std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>,
+		                          std::nullptr_t> = nullptr>
 		basic_unique_counter( Integer count, bool countered ) noexcept(
-		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t>
-		    and std::is_nothrow_default_constructible_v<ConditionVariable> )
+		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t> and
+		  std::is_nothrow_default_constructible_v<ConditionVariable> )
 		  : counter( std::make_unique<counter_t>( count, countered ) ) {
 
 			assert( count >= 0 );
@@ -203,8 +209,8 @@ namespace daw {
 		}
 
 		template<typename Clock, typename Duration>
-		[[nodiscard]] decltype( auto )
-		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) const {
+		[[nodiscard]] decltype( auto ) wait_until(
+		  std::chrono::time_point<Clock, Duration> const &timeout_time ) const {
 			assert( counter );
 			return counter->wait_until( timeout_time );
 		}
@@ -215,9 +221,11 @@ namespace daw {
 	}; // basic_unique_counter
 
 	template<typename Mutex, typename ConditionVariable>
-	struct is_unique_counter<basic_unique_counter<Mutex, ConditionVariable>> : std::true_type {};
+	struct is_unique_counter<basic_unique_counter<Mutex, ConditionVariable>>
+	  : std::true_type {};
 
-	using unique_counter = basic_unique_counter<std::mutex, std::condition_variable>;
+	using unique_counter =
+	  basic_unique_counter<std::mutex, std::condition_variable>;
 
 	template<typename Mutex, typename ConditionVariable>
 	class basic_shared_counter {
@@ -225,31 +233,33 @@ namespace daw {
 		std::shared_ptr<counter_t> counter = std::make_shared<counter_t>( );
 
 	public:
-		basic_shared_counter( ) noexcept( noexcept( std::make_shared<counter_t>( ) ) ) = default;
+		basic_shared_counter( ) noexcept(
+		  noexcept( std::make_shared<counter_t>( ) ) ) = default;
 
-		template<
-		  typename Integer,
-		  std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>, std::nullptr_t> = nullptr>
+		template<typename Integer,
+		         std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>,
+		                          std::nullptr_t> = nullptr>
 		explicit basic_shared_counter( Integer count ) noexcept(
-		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t>
-		    and std::is_nothrow_default_constructible_v<ConditionVariable> )
+		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t> and
+		  std::is_nothrow_default_constructible_v<ConditionVariable> )
 		  : counter( std::make_shared<counter_t>( count ) ) {
 
 			assert( count >= 0 );
 		}
 
-		template<
-		  typename Integer,
-		  std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>, std::nullptr_t> = nullptr>
+		template<typename Integer,
+		         std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>,
+		                          std::nullptr_t> = nullptr>
 		basic_shared_counter( Integer count, bool countered ) noexcept(
-		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t>
-		    and std::is_nothrow_default_constructible_v<ConditionVariable> )
+		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t> and
+		  std::is_nothrow_default_constructible_v<ConditionVariable> )
 		  : counter( std::make_shared<counter_t>( count, countered ) ) {
 
 			assert( count >= 0 );
 		}
 
-		explicit basic_shared_counter( basic_unique_counter<Mutex, ConditionVariable> &&other ) noexcept
+		explicit basic_shared_counter(
+		  basic_unique_counter<Mutex, ConditionVariable> &&other ) noexcept
 		  : counter( other.release( ) ) {}
 
 		void notify( ) {
@@ -285,8 +295,8 @@ namespace daw {
 		}
 
 		template<typename Clock, typename Duration>
-		[[nodiscard]] decltype( auto )
-		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) const {
+		[[nodiscard]] decltype( auto ) wait_until(
+		  std::chrono::time_point<Clock, Duration> const &timeout_time ) const {
 			assert( counter );
 			return counter->wait_until( timeout_time );
 		}
@@ -305,12 +315,15 @@ namespace daw {
 	}; // basic_shared_counter
 
 	template<typename Mutex, typename ConditionVariable>
-	struct is_shared_counter<basic_shared_counter<Mutex, ConditionVariable>> : std::true_type {};
+	struct is_shared_counter<basic_shared_counter<Mutex, ConditionVariable>>
+	  : std::true_type {};
 
-	using shared_counter = basic_shared_counter<std::mutex, std::condition_variable>;
+	using shared_counter =
+	  basic_shared_counter<std::mutex, std::condition_variable>;
 
 	template<typename Mutex, typename ConditionVariable>
-	void wait_all( std::initializer_list<basic_counter<Mutex, ConditionVariable>> semaphores ) {
+	void wait_all( std::initializer_list<basic_counter<Mutex, ConditionVariable>>
+	                 semaphores ) {
 		for( auto &sem : semaphores ) {
 			sem->wait( );
 		}

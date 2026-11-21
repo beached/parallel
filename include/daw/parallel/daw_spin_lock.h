@@ -8,8 +8,9 @@
 
 #pragma once
 
+#include <daw/ciso646.h>
+
 #include <atomic>
-#include <ciso646>
 #include <immintrin.h>
 
 namespace daw {

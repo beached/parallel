@@ -8,16 +8,15 @@
 
 #pragma once
 
-#include "daw_condition_variable.h"
+#include "daw/parallel/daw_condition_variable.h"
 
+#include <daw/ciso646.h>
 #include <daw/cpp_17.h>
 #include <daw/daw_cpp_feature_check.h>
 #include <daw/daw_exception.h>
-#include <daw/daw_move.h>
 
 #include <atomic>
 #include <cassert>
-#include <ciso646>
 #include <cstdint>
 #include <memory>
 
@@ -33,12 +32,14 @@ namespace daw {
 
 	template<typename Mutex, typename ConditionVariable>
 	class basic_latch {
-		mutable daw::basic_condition_variable<Mutex, ConditionVariable> m_condition =
-		  daw::basic_condition_variable<Mutex, ConditionVariable>( );
+		mutable daw::basic_condition_variable<Mutex, ConditionVariable>
+		  m_condition = daw::basic_condition_variable<Mutex, ConditionVariable>( );
 		std::atomic_intmax_t m_count = 1;
 
 		[[nodiscard]] auto stop_waiting( ) const {
-			return [&]( ) -> bool { return static_cast<intmax_t>( m_count ) <= 0; };
+			return [&]( ) -> bool {
+				return static_cast<intmax_t>( m_count ) <= 0;
+			};
 		}
 
 		void decrement( ) {
@@ -48,29 +49,29 @@ namespace daw {
 	public:
 		basic_latch( ) = default;
 
-		template<
-		  typename Integer,
-		  std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>, std::nullptr_t> = nullptr>
+		template<typename Integer,
+		         std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>,
+		                          std::nullptr_t> = nullptr>
 		explicit basic_latch( Integer count ) noexcept(
-		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t>
-		    and std::is_nothrow_default_constructible_v<ConditionVariable> )
+		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t> and
+		  std::is_nothrow_default_constructible_v<ConditionVariable> )
 		  : m_count( static_cast<intmax_t>( count ) ) {}
 
-		template<
-		  typename Integer,
-		  std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>, std::nullptr_t> = nullptr>
+		template<typename Integer,
+		         std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>,
+		                          std::nullptr_t> = nullptr>
 		basic_latch( Integer count, bool latched ) noexcept(
-		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t>
-		    and std::is_nothrow_default_constructible_v<ConditionVariable> )
+		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t> and
+		  std::is_nothrow_default_constructible_v<ConditionVariable> )
 		  : m_count( static_cast<intmax_t>( count ) ) {}
 
 		void reset( ) {
 			m_count = 1;
 		}
 
-		template<
-		  typename Integer,
-		  std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>, std::nullptr_t> = nullptr>
+		template<typename Integer,
+		         std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>,
+		                          std::nullptr_t> = nullptr>
 		void reset( Integer count ) {
 
 			m_count = static_cast<intmax_t>( count );
@@ -105,18 +106,21 @@ namespace daw {
 		}
 
 		template<typename Rep, typename Period>
-		[[nodiscard]] auto wait_for( std::chrono::duration<Rep, Period> const &rel_time ) {
+		[[nodiscard]] auto
+		wait_for( std::chrono::duration<Rep, Period> const &rel_time ) {
 			return m_condition.wait_for( rel_time, stop_waiting( ) );
 		}
 
 		template<typename Clock, typename Duration>
-		[[nodiscard]] auto wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) {
+		[[nodiscard]] auto
+		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time ) {
 			return m_condition.wait_until( timeout_time, stop_waiting( ) );
 		}
 	}; // basic_latch
 
 	template<typename Mutex, typename ConditionVariable>
-	inline constexpr bool is_latch_v<basic_latch<Mutex, ConditionVariable>> = true;
+	inline constexpr bool is_latch_v<basic_latch<Mutex, ConditionVariable>> =
+	  true;
 
 	using latch = basic_latch<std::mutex, std::condition_variable>;
 
@@ -128,20 +132,20 @@ namespace daw {
 	public:
 		constexpr basic_unique_latch( ) = default;
 
-		template<
-		  typename Integer,
-		  std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>, std::nullptr_t> = nullptr>
+		template<typename Integer,
+		         std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>,
+		                          std::nullptr_t> = nullptr>
 		explicit basic_unique_latch( Integer count ) noexcept(
-		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t>
-		    and std::is_nothrow_default_constructible_v<ConditionVariable> )
+		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t> and
+		  std::is_nothrow_default_constructible_v<ConditionVariable> )
 		  : latch( std::make_unique<latch_t>( count ) ) {}
 
-		template<
-		  typename Integer,
-		  std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>, std::nullptr_t> = nullptr>
+		template<typename Integer,
+		         std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>,
+		                          std::nullptr_t> = nullptr>
 		basic_unique_latch( Integer count, bool latched ) noexcept(
-		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t>
-		    and std::is_nothrow_default_constructible_v<ConditionVariable> )
+		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t> and
+		  std::is_nothrow_default_constructible_v<ConditionVariable> )
 		  : latch( std::make_unique<latch_t>( count, latched ) ) {}
 
 		basic_latch<Mutex, ConditionVariable> *release( ) {
@@ -193,7 +197,8 @@ namespace daw {
 	}; // basic_unique_latch
 
 	template<typename Mutex, typename ConditionVariable>
-	inline constexpr bool is_unique_latch_v<basic_unique_latch<Mutex, ConditionVariable>> = true;
+	inline constexpr bool
+	  is_unique_latch_v<basic_unique_latch<Mutex, ConditionVariable>> = true;
 
 	using unique_latch = basic_unique_latch<std::mutex, std::condition_variable>;
 
@@ -205,23 +210,24 @@ namespace daw {
 	public:
 		basic_shared_latch( ) = default;
 
-		template<
-		  typename Integer,
-		  std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>, std::nullptr_t> = nullptr>
+		template<typename Integer,
+		         std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>,
+		                          std::nullptr_t> = nullptr>
 		explicit basic_shared_latch( Integer count ) noexcept(
-		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t>
-		    and std::is_nothrow_default_constructible_v<ConditionVariable> )
+		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t> and
+		  std::is_nothrow_default_constructible_v<ConditionVariable> )
 		  : latch( std::make_shared<latch_t>( count ) ) {}
 
-		template<
-		  typename Integer,
-		  std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>, std::nullptr_t> = nullptr>
+		template<typename Integer,
+		         std::enable_if_t<std::is_integral_v<daw::remove_cvref_t<Integer>>,
+		                          std::nullptr_t> = nullptr>
 		basic_shared_latch( Integer count, bool latched ) noexcept(
-		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t>
-		    and std::is_nothrow_default_constructible_v<ConditionVariable> )
+		  std::is_nothrow_default_constructible_v<std::atomic_intmax_t> and
+		  std::is_nothrow_default_constructible_v<ConditionVariable> )
 		  : latch( std::make_shared<latch_t>( count, latched ) ) {}
 
-		explicit basic_shared_latch( basic_unique_latch<Mutex, ConditionVariable> &&other ) noexcept
+		explicit basic_shared_latch(
+		  basic_unique_latch<Mutex, ConditionVariable> &&other ) noexcept
 		  : latch( other.release( ) ) {}
 
 		void add_notifier( ) {
@@ -269,12 +275,14 @@ namespace daw {
 	}; // basic_shared_latch
 
 	template<typename Mutex, typename ConditionVariable>
-	inline constexpr bool is_shared_latch_v<basic_shared_latch<Mutex, ConditionVariable>> = true;
+	inline constexpr bool
+	  is_shared_latch_v<basic_shared_latch<Mutex, ConditionVariable>> = true;
 
 	using shared_latch = basic_shared_latch<std::mutex, std::condition_variable>;
 
 	template<typename Mutex, typename ConditionVariable>
-	void wait_all( std::initializer_list<basic_latch<Mutex, ConditionVariable>> semaphores ) {
+	void wait_all(
+	  std::initializer_list<basic_latch<Mutex, ConditionVariable>> semaphores ) {
 		for( auto &sem : semaphores ) {
 			sem->wait( );
 		}

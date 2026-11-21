@@ -8,11 +8,11 @@
 
 #pragma once
 
-#include "daw_semaphore.h"
+#include "daw/parallel/daw_semaphore.h"
 
 #include <daw/daw_value_ptr.h>
 
-#include <ciso646>
+#include <daw/ciso646.h>
 #include <mutex>
 #include <optional>
 #include <vector>

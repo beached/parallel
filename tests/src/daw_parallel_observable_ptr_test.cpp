@@ -18,7 +18,9 @@ void test_001( ) {
 
 	auto obs = t.get_observer( );
 
-	obs.lock( []( int &val ) { val = 5; } );
+	obs.lock( []( int &val ) {
+		val = 5;
+	} );
 
 	daw::expecting( 5, *p );
 }
@@ -42,7 +44,9 @@ void test_003( ) {
 
 	auto obs = t.get_observer( );
 
-	obs.lock( []( int &val ) { val = 5; } );
+	obs.lock( []( int &val ) {
+		val = 5;
+	} );
 
 	daw::expecting( 5, *t );
 }

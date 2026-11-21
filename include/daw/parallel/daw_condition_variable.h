@@ -8,9 +8,9 @@
 
 #pragma once
 
-#include <ciso646>
 #include <condition_variable>
 #include <cstdint>
+#include <daw/ciso646.h>
 #include <memory>
 #include <mutex>
 #include <type_traits>
@@ -39,26 +39,30 @@ namespace daw {
 		}
 
 		template<typename Rep, typename Period, typename Predicate>
-		[[nodiscard]] auto wait_for( std::chrono::duration<Rep, Period> const &rel_time,
-		                             Predicate &&pred ) {
+		[[nodiscard]] auto
+		wait_for( std::chrono::duration<Rep, Period> const &rel_time,
+		          Predicate &&pred ) {
 			auto lock = std::unique_lock<Mutex>( *m_mutex );
 			return m_condition.wait_for( lock, rel_time, pred );
 		}
 
 		template<typename Clock, typename Duration, typename Predicate>
-		[[nodiscard]] auto wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time,
-		                               Predicate &&pred ) {
+		[[nodiscard]] auto
+		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time,
+		            Predicate &&pred ) {
 			auto lock = std::unique_lock<Mutex>( *m_mutex );
 			return m_condition.wait_until( lock, timeout_time, pred );
 		}
 	}; // basic_condition_variable
 
-	using condition_variable = basic_condition_variable<std::mutex, std::condition_variable>;
+	using condition_variable =
+	  basic_condition_variable<std::mutex, std::condition_variable>;
 
 	template<typename Mutex, typename ConditionVariable>
 	class basic_unique_condition_variable {
-		std::unique_ptr<basic_condition_variable<Mutex, ConditionVariable>> m_members =
-		  std::make_unique<basic_condition_variable<Mutex, ConditionVariable>>( );
+		std::unique_ptr<basic_condition_variable<Mutex, ConditionVariable>>
+		  m_members =
+		    std::make_unique<basic_condition_variable<Mutex, ConditionVariable>>( );
 
 	public:
 		basic_unique_condition_variable( ) = default;
@@ -81,16 +85,19 @@ namespace daw {
 		}
 
 		template<typename Rep, typename Period, typename Predicate>
-		[[nodiscard]] decltype( auto ) wait_for( std::chrono::duration<Rep, Period> const &rel_time,
-		                                         Predicate &&pred ) {
+		[[nodiscard]] decltype( auto )
+		wait_for( std::chrono::duration<Rep, Period> const &rel_time,
+		          Predicate &&pred ) {
 
 			return m_members.wait_for( rel_time, std::forward<Predicate>( pred ) );
 		}
 
 		template<typename Clock, typename Duration, typename Predicate>
 		[[nodiscard]] decltype( auto )
-		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time, Predicate &&pred ) {
-			return m_members.wait_for( timeout_time, std::forward<Predicate>( pred ) );
+		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time,
+		            Predicate &&pred ) {
+			return m_members.wait_for( timeout_time,
+			                           std::forward<Predicate>( pred ) );
 		}
 	}; // basic_condition_variable
 
@@ -99,14 +106,16 @@ namespace daw {
 
 	template<typename Mutex, typename ConditionVariable>
 	class basic_shared_condition_variable {
-		std::shared_ptr<basic_condition_variable<Mutex, ConditionVariable>> m_members =
-		  std::make_shared<basic_condition_variable<Mutex, ConditionVariable>>( );
+		std::shared_ptr<basic_condition_variable<Mutex, ConditionVariable>>
+		  m_members =
+		    std::make_shared<basic_condition_variable<Mutex, ConditionVariable>>( );
 
 	public:
 		basic_shared_condition_variable( ) = default;
 
 		basic_shared_condition_variable(
-		  basic_unique_condition_variable<Mutex, ConditionVariable> &&other ) noexcept
+		  basic_unique_condition_variable<Mutex, ConditionVariable>
+		    &&other ) noexcept
 		  : m_members( other.release( ) ) {}
 
 		void notify_all( ) {
@@ -123,16 +132,19 @@ namespace daw {
 		}
 
 		template<typename Rep, typename Period, typename Predicate>
-		[[nodiscard]] decltype( auto ) wait_for( std::chrono::duration<Rep, Period> const &rel_time,
-		                                         Predicate &&pred ) {
+		[[nodiscard]] decltype( auto )
+		wait_for( std::chrono::duration<Rep, Period> const &rel_time,
+		          Predicate &&pred ) {
 
 			return m_members.wait_for( rel_time, std::forward<Predicate>( pred ) );
 		}
 
 		template<typename Clock, typename Duration, typename Predicate>
 		[[nodiscard]] decltype( auto )
-		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time, Predicate &&pred ) {
-			return m_members.wait_for( timeout_time, std::forward<Predicate>( pred ) );
+		wait_until( std::chrono::time_point<Clock, Duration> const &timeout_time,
+		            Predicate &&pred ) {
+			return m_members.wait_for( timeout_time,
+			                           std::forward<Predicate>( pred ) );
 		}
 	}; // basic_condition_variable
 

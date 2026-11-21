@@ -19,7 +19,9 @@ void test_001( ) {
 
 	auto obs = t.get_observer( );
 
-	obs.lock( []( int &val ) { val = 5; } );
+	obs.lock( []( int &val ) {
+		val = 5;
+	} );
 
 	daw::expecting( 5, *p );
 }
@@ -43,7 +45,9 @@ void test_003( ) {
 
 	auto obs = t.get_observer( );
 
-	obs.lock( []( int &val ) { val = 5; } );
+	obs.lock( []( int &val ) {
+		val = 5;
+	} );
 
 	daw::expecting( 5, *t );
 }
@@ -79,28 +83,39 @@ void test_operator_arrow_005( ) {
 
 void test_visit_006( ) {
 	auto const tmp = daw::make_observable_ptr_pair<test_t>( 5 );
-	auto const res = tmp.visit( []( auto v ) { return v.value; } );
+	auto const res = tmp.visit( []( auto v ) {
+		return v.value;
+	} );
 	daw::expecting( 5, res );
 }
 
 void test_apply_visitor_007( ) {
 	auto const tmp = daw::make_observable_ptr_pair<test_t>( 5 );
-	auto const res =
-	  tmp.apply_visitor( []( auto const &ptr ) { return ptr->value; } );
+	auto const res = tmp.apply_visitor( []( auto const &ptr ) {
+		return ptr->value;
+	} );
 	daw::expecting( 5, res );
 }
 
 void test_visit_008( ) {
 	auto tmp = daw::make_observable_ptr_pair<test_t>( 5 );
-	tmp.visit( []( auto &v ) -> int & { return v.value; } ) = 6;
-	auto const res = tmp.visit( []( auto v ) -> int { return v.value; } );
+	tmp.visit( []( auto &v ) -> int & {
+		return v.value;
+	} ) = 6;
+	auto const res = tmp.visit( []( auto v ) -> int {
+		return v.value;
+	} );
 	daw::expecting( 6, res );
 }
 
 void test_visit_009( ) {
 	auto tmp = daw::make_observable_ptr_pair<test_t>( 5 );
-	tmp.visit( []( auto &v ) { v.set_value( 6 ); } );
-	auto const res = tmp.visit( []( auto v ) -> int { return v.value; } );
+	tmp.visit( []( auto &v ) {
+		v.set_value( 6 );
+	} );
+	auto const res = tmp.visit( []( auto v ) -> int {
+		return v.value;
+	} );
 	daw::expecting( 6, res );
 }
 
