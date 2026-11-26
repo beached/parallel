@@ -36,7 +36,7 @@ jobs:
     env:
       DAW_BUILD_DIR: "build_${{ matrix.config.cpp_version }}_${{ matrix.config.arch }}_${{ matrix.config.build_type }}_${{ matrix.config.toolset }}"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: beached/msvc-dev-cmd@285e7c0b9b57a02c900951da93a77e656425d783
         with:
           arch: ${{ matrix.config.arch }}
